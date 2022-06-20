@@ -1,0 +1,30 @@
+.matrix__table > table {
+    border-collapse: collapse;
+    width: 100px;
+}
+
+.matrix__table > table > tr > td {
+    border: 1px solid black;
+    text-align: center;
+    padding: 8px;
+}
+
+.matrix__topLeft {
+    border-left-style: hidden!important;
+    border-top-style: hidden!important;
+}
+
+.matrix__topRight {
+    border-right-style: hidden!important;
+    border-top-style: hidden!important;
+}
+
+.matrix__bottomLeft {
+    border-left-style: hidden!important;
+    border-bottom-style: hidden!important;
+}
+
+.matrix__bottomRight {
+    border-right-style: hidden!important;
+    border-bottom-style: hidden!important;
+}
