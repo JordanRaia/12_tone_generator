@@ -1,6 +1,5 @@
 .matrix__table > table {
     border-collapse: collapse;
-    width: 100px;
 }
 
 .matrix__table > table > tr > td {
