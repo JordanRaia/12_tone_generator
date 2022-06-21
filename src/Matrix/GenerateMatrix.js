@@ -1,5 +1,3 @@
-import React from "react";
-
 function generate_matrix({ row }) {
     function mod(n, m) {
         return ((n % m) + m) % m;

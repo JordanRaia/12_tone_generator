@@ -65,7 +65,7 @@ function Midi({ notation }) {
             <div id="audio"></div>
             <div class="activate-audio"></div>
             <button id="midi" onClick={downloadMidi}>Download MIDI</button>
-            <a id="midi-download" download="example.mid"></a>
+            <a id="midi-download" download="example.mid" href="twelve tone midi file"></a>
         </div>
     );
 }
