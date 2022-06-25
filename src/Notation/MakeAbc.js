@@ -1,7 +1,7 @@
 import { scientificToAbcNotation } from "@tonaljs/abc-notation";
 import { note_types } from "../Modules/note_types";
 
-function make_abc(matrix, type, rowNum) {
+function make_abc(matrix, type, rowNum, title) {
     //finds the location of a value at the beginning of a row
     function find_row_location(RowType, value) {
         var x; //0 or 11 depending on which side of matrix
@@ -73,7 +73,7 @@ function make_abc(matrix, type, rowNum) {
 
     var notation = `
 X: 1
-T: Twelve Tone
+T: ${title}
 M: 4/4
 L: 1/8
 Q: 100

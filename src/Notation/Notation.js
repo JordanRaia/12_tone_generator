@@ -23,7 +23,7 @@ function Notation({ notation }) {
 
         // resize to page
         var visualOptions = { responsive: 'resize' };
-        var visualObj = abcjs.renderAbc("paper", notation, visualOptions);
+        abcjs.renderAbc("paper", notation, visualOptions);
     }
 
     return <div>

@@ -1,8 +1,23 @@
-.App {
-  margin-left: 25%;
-  margin-right: 25%;
+.App__noteButtonRow {
+  display: flex;
 }
 
-h1 {
-  font-size: medium;
+.App__row {
+  display: flex;
+}
+
+.App__rowElement {
+  margin: 5px;
+}
+
+.App__noteTypeFlex {
+  display: flex;
+}
+
+.App__flex {
+  display: flex;
+}
+
+.App__notation {
+  width: 50%;
 }
