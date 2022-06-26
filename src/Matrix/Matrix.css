@@ -2,7 +2,7 @@
     border-collapse: collapse;
 }
 
-.matrix__table > table > tr > td {
+.matrix__table > table > tbody > tr > td {
     border: 1px solid black;
     text-align: center;
     padding: 8px;

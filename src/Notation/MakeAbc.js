@@ -1,5 +1,5 @@
-import { scientificToAbcNotation } from "@tonaljs/abc-notation";
-import { note_types } from "../Modules/note_types";
+import { scientificToAbcNotation, distance } from "@tonaljs/abc-notation";
+import { notesb } from "../Modules/note_types";
 
 function make_abc(matrix, type, rowNum, title) {
     //finds the location of a value at the beginning of a row
@@ -71,6 +71,221 @@ function make_abc(matrix, type, rowNum, title) {
 
     var rowType = ["P", "R", "I", "RI"]; //different types of rows on matrix
 
+    function addNotes(noteArr, startInterval) {
+        for (let i = 0; i < rowNum; i++) {
+            let randomRowType = rowType[Math.floor(Math.random() * 4)]; //random row Type
+            let randomRowNum = Math.floor(Math.random() * 11) + 1; //random row Number
+            noteArr.push(`"^${randomRowType + randomRowNum}"`); //push text of row's name
+            addRow(
+                noteArr,
+                randomRowType,
+                find_row_location(randomRowType, randomRowNum),
+                startInterval
+            );
+        }
+    }
+
+    function addRow(noteArr, rowType, rowLocation, startInterval) {
+        switch (rowType) {
+            case "P":
+            case "I":
+                for (let i = 0; i < 12; i++) {
+                    pushNote(noteArr, rowType, rowLocation, i, startInterval);
+                }
+                break;
+            case "R":
+            case "RI":
+                for (let i = 11; i >= 0; i--) {
+                    pushNote(noteArr, rowType, rowLocation, i, startInterval);
+                }
+                break;
+        }
+    }
+
+    function pushNote(noteArr, rowType, rowLocation, i, startInterval) {
+        switch (noteArr.length) {
+            //first note
+            case 1:
+                noteArr.push(
+                    pushMatrix(noteArr, rowType, rowLocation, i, startInterval)
+                );
+                break;
+            //not first note
+            default:
+                switch (i) {
+                    //first of row
+                    case 0:
+                        switch (rowType) {
+                            case "R":
+                            case "RI":
+                                noteArr.push(
+                                    pushMatrix(
+                                        noteArr,
+                                        rowType,
+                                        rowLocation,
+                                        i,
+                                        findLowest(
+                                            noteArr[noteArr.length - 1],
+                                            pushMatrix(
+                                                noteArr,
+                                                rowType,
+                                                rowLocation,
+                                                i
+                                            )
+                                        )
+                                    )
+                                );
+                                break;
+                            default:
+                                noteArr.push(
+                                    pushMatrix(
+                                        noteArr,
+                                        rowType,
+                                        rowLocation,
+                                        i,
+                                        findLowest(
+                                            noteArr[noteArr.length - 2],
+                                            pushMatrix(
+                                                noteArr,
+                                                rowType,
+                                                rowLocation,
+                                                i
+                                            )
+                                        )
+                                    )
+                                );
+                                break;
+                        }
+                        break;
+                    case 11:
+                        switch (rowType) {
+                            case "P":
+                            case "I":
+                                noteArr.push(
+                                    pushMatrix(
+                                        noteArr,
+                                        rowType,
+                                        rowLocation,
+                                        i,
+                                        findLowest(
+                                            noteArr[noteArr.length - 1],
+                                            pushMatrix(
+                                                noteArr,
+                                                rowType,
+                                                rowLocation,
+                                                i
+                                            )
+                                        )
+                                    )
+                                );
+                                break;
+                            default:
+                                noteArr.push(
+                                    pushMatrix(
+                                        noteArr,
+                                        rowType,
+                                        rowLocation,
+                                        i,
+                                        findLowest(
+                                            noteArr[noteArr.length - 2],
+                                            pushMatrix(
+                                                noteArr,
+                                                rowType,
+                                                rowLocation,
+                                                i
+                                            )
+                                        )
+                                    )
+                                );
+                                break;
+                        }
+                        break;
+                    //not first of row
+                    default:
+                        //push next note with shortest distance
+                        noteArr.push(
+                            pushMatrix(
+                                noteArr,
+                                rowType,
+                                rowLocation,
+                                i,
+                                findLowest(
+                                    noteArr[noteArr.length - 1],
+                                    pushMatrix(noteArr, rowType, rowLocation, i)
+                                )
+                            )
+                        );
+                        break;
+                }
+                break;
+        }
+    }
+
+    function pushMatrix(noteArr, type, location, i, interval = "") {
+        switch (type) {
+            //left to right
+            case "P":
+                return notesb[new_type][matrix[location][i]] + interval;
+            //up to down
+            case "I":
+                return notesb[new_type][matrix[i][location]] + interval;
+            //right to left
+            case "R":
+                return notesb[new_type][matrix[location][i]] + interval;
+            //down to up
+            case "RI":
+                return notesb[new_type][matrix[i][location]] + interval;
+        }
+    }
+
+    //returns the note with the lowest interval from note1 to the note2
+    //note1 will have interval number, example: "C4". Note2 will just be a note, example: "G"
+    function findLowest(Note1, Note2) {
+        let intervalNum = parseInt(Note1.slice(-1)); //grabs number at the end and converts to an integer
+
+        let below = intervalNum - 1; //interval below
+        let same = intervalNum; //same interval
+        let above = intervalNum + 1; //interval above
+
+        const intervalArray = [`${below}`, `${same}`, `${above}`];
+
+        //array of distances between all 3 potential notes
+        const distanceArr = [
+            Math.abs(
+                parseInt(
+                    distance(
+                        scientificToAbcNotation(Note1),
+                        scientificToAbcNotation(Note2 + below)
+                    ).slice(0, -1)
+                )
+            ),
+            Math.abs(
+                parseInt(
+                    distance(
+                        scientificToAbcNotation(Note1),
+                        scientificToAbcNotation(Note2 + same)
+                    ).slice(0, -1)
+                )
+            ),
+            Math.abs(
+                parseInt(
+                    distance(
+                        scientificToAbcNotation(Note1),
+                        scientificToAbcNotation(Note2 + above)
+                    ).slice(0, -1)
+                )
+            ),
+        ];
+
+        const min = Math.min(...distanceArr);
+        const index = distanceArr.indexOf(min);
+
+        return intervalArray[index];
+    }
+
+    var treble = [];
+    var bass = [];
+
     var notation = `
 X: 1
 T: ${title}
@@ -81,192 +296,61 @@ K: Cmaj
 V: 1 clef=treble
 `;
 
-    let noteNum = 0; //number of notes played this measure
-    let measureNum = 0; //number of measures printed on line
-    let beatNum = 0;
-    let treble = true;
+    addNotes(treble, 4);
+    addNotes(bass, 3);
 
-    for (let i = 0; i < rowNum; i++) {
-        let randomRowType = rowType[Math.floor(Math.random() * 4)]; //random row Type
-        let randomRowNum = Math.floor(Math.random() * 11) + 1; //random row Number
-        var location;
-        var r;
+    let beat = 0;
+    let measureBeat = 0;
+    let measure = 0;
+    let voice = 0;
+    var usedNotes = [];
 
-        switch (randomRowType) {
-            case "P":
-                location = find_row_location(randomRowType, randomRowNum);
-                notation += `"^${randomRowType + randomRowNum}"`;
-                for (let i = 0; i < 12; i++) {
-                    if (treble) {
-                        r = 4;
-                    } else {
-                        r = 3;
-                    }
+    for (let i = 0; i < treble.length; i++) {
+        //annotation
+        if (treble[i].charAt(0) === `"`) {
+            notation += " " + treble[i] + " ";
+        } //note
+        else {
+            beat++;
+            measureBeat++;
 
-                    notation +=
-                        "=" +
-                        scientificToAbcNotation(
-                            note_types[new_type][matrix[location][i]] + r
-                        );
+            notation += scientificToAbcNotation(treble[i]);
 
-                    beatNum++;
-                    if (beatNum === 2) {
-                        notation += " ";
-                        beatNum = 0;
-                    }
-
-                    noteNum = noteNum + 1;
-                    if (noteNum === 8) {
-                        noteNum = 0;
-                        notation += "| ";
-                        measureNum++;
-                        if (measureNum === 3) {
-                            notation += "\n";
-                            if (treble) {
-                                notation += "V: 2 clef=bass \n";
-                                treble = false;
-                            } else {
-                                notation += "V: 1 clef=treble \n";
-                                treble = true;
-                            }
-                            measureNum = 0;
-                        }
-                    }
+            if (beat === 2) {
+                //two eighth notes
+                beat = 0;
+                notation += " ";
+            }
+            if (measureBeat === 8) {
+                //one full measure
+                measure++;
+                measureBeat = 0;
+                notation += " |";
+            }
+            if (measure === 3) {
+                //three full measures
+                measure = 0;
+                if (i !== treble.length - 1)
+                {
+                    notation += "\n";
                 }
-                break;
-            case "R":
-                location = find_row_location(randomRowType, randomRowNum);
-                notation += `"^${randomRowType + randomRowNum}"`;
-                for (let i = 11; i >= 0; i--) {
-                    if (treble) {
-                        r = 4;
-                    } else {
-                        r = 3;
-                    }
+            }
 
-                    notation +=
-                        "=" +
-                        scientificToAbcNotation(
-                            note_types[new_type][matrix[location][i]] + r
-                        );
-
-                    beatNum++;
-                    if (beatNum === 2) {
-                        notation += " ";
-                        beatNum = 0;
+            if (i === treble.length - 1) {
+                //final note
+                if (measureBeat !== 0) {
+                    let remaning = 8 - measureBeat;
+                    for (let i = 0; i < remaning; i++) {
+                        notation += " z ";
                     }
-
-                    noteNum = noteNum + 1;
-                    if (noteNum === 8) {
-                        noteNum = 0;
-                        notation += "| ";
-                        measureNum++;
-                        if (measureNum === 3) {
-                            notation += "\n";
-                            if (treble) {
-                                notation += "V: 2 clef=bass \n";
-                                treble = false;
-                            } else {
-                                notation += "V: 1 clef=treble \n";
-                                treble = true;
-                            }
-                            measureNum = 0;
-                        }
-                    }
+                    notation += "|";
                 }
-                break;
-            case "I":
-                location = find_row_location(randomRowType, randomRowNum);
-                notation += `"^${randomRowType + randomRowNum}"`; //anotate the row
-                for (let i = 0; i < 12; i++) {
-                    if (treble) {
-                        r = 4;
-                    } else {
-                        r = 3;
-                    }
 
-                    notation +=
-                        "=" +
-                        scientificToAbcNotation(
-                            note_types[new_type][matrix[i][location]] + r
-                        );
-
-                    beatNum++;
-                    if (beatNum === 2) {
-                        notation += " ";
-                        beatNum = 0;
-                    }
-
-                    noteNum = noteNum + 1;
-                    if (noteNum === 8) {
-                        noteNum = 0;
-                        notation += "| ";
-                        measureNum++;
-                        if (measureNum === 3) {
-                            notation += "\n ";
-                            if (treble) {
-                                notation += "V: 2 clef=bass \n";
-                                treble = false;
-                            } else {
-                                notation += "V: 1 clef=treble \n";
-                                treble = true;
-                            }
-                            measureNum = 0;
-                        }
-                    }
-                }
-                break;
-            case "RI":
-                location = find_row_location(randomRowType, randomRowNum);
-                notation += `"^${randomRowType + randomRowNum}"`;
-                for (let i = 11; i >= 0; i--) {
-                    if (treble) {
-                        r = 4;
-                    } else {
-                        r = 3;
-                    }
-
-                    notation +=
-                        "=" +
-                        scientificToAbcNotation(
-                            note_types[new_type][matrix[i][location]] + r
-                        );
-
-                    beatNum++;
-                    if (beatNum === 2) {
-                        notation += " ";
-                        beatNum = 0;
-                    }
-
-                    noteNum = noteNum + 1;
-                    if (noteNum === 8) {
-                        noteNum = 0;
-                        notation += "| ";
-                        measureNum++;
-                        if (measureNum === 3) {
-                            notation += "\n ";
-                            if (treble) {
-                                notation += "V: 2 clef=bass \n";
-                                treble = false;
-                            } else {
-                                notation += "V: 1 clef=treble \n";
-                                treble = true;
-                            }
-                            measureNum = 0;
-                        }
-                    }
-                }
-                break;
-            default:
-                console.log(
-                    randomRowType,
-                    " is an invalid row type! (P, R, I, and RI are valid)"
-                );
-                return;
+                notation += "]";
+            }
         }
     }
 
-    console.log(notation);
     return notation;
 }
 

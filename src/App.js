@@ -31,6 +31,7 @@ function App() {
     const [isShown, setIsShown] = useState(false);
     const [generateError, setGenerateError] = useState("");
     //values used when generate is clicked
+    const [displayRow, setDisplayRow] = useState();
     const [displayNoteType, setDisplayNoteType] = useState("flats");
     const [abcNotes, setAbcNotes] = useState();
 
@@ -119,9 +120,8 @@ function App() {
         } else {
             updateNoteState(row[row.length - 1], false); //make button clickable again
 
-            let tempRow = row; //make temp row to modify
+            let tempRow = row.slice(); //make temp row to modify
             tempRow.pop();
-            console.log(tempRow);
             setRow(tempRow);
         }
     };
@@ -171,7 +171,11 @@ function App() {
         } else {
             setGenerateError("");
             setDisplayNoteType(noteType);
-            setAbcNotes(make_abc(generate_matrix(row), noteType, rowNum, title));
+            setDisplayRow(row.slice());
+            if (displayRow)
+            {
+                setAbcNotes(make_abc(generate_matrix(displayRow), noteType, rowNum, title));
+            }
             setIsShown(true);
         }
     };
@@ -182,12 +186,12 @@ function App() {
             <h2>Row</h2>
             <div className="App__row">
                 {row.map((i) => (
-                    <p className="App__rowElement">{note_types[noteType][i]}</p>
+                    <p key={note_types[noteType][i]} className="App__rowElement">{note_types[noteType][i]}</p>
                 ))}
             </div>
             <div className="App__noteButtonRow">
                 {noteButtonState.map((value, i) => (
-                    <button disabled={value} onClick={updateNoteArrays(i)}>
+                    <button key={note_types[noteType][i]} disabled={value} onClick={updateNoteArrays(i)}>
                         {note_types[noteType][i]}
                     </button>
                 ))}
@@ -259,7 +263,7 @@ function App() {
             <p>{generateError}</p>
             {isShown && (
                 <div>
-                    <Matrix matrix={generate_matrix(row)} type={displayNoteType} />
+                    <Matrix matrix={generate_matrix(displayRow)} type={displayNoteType} />
                     <div className="App__notation">
                         {abcNotes && <Notation notation={abcNotes} />}
                     </div>
