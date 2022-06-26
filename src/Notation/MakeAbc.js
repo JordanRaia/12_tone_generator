@@ -1,7 +1,7 @@
 import { scientificToAbcNotation, distance } from "@tonaljs/abc-notation";
 import { notesb } from "../Modules/note_types";
 
-function make_abc(matrix, type, rowNum, title) {
+function make_abc(matrix, type, rowNum, title, tempo) {
     //finds the location of a value at the beginning of a row
     function find_row_location(RowType, value) {
         var x; //0 or 11 depending on which side of matrix
@@ -419,7 +419,7 @@ X: 1
 T: ${title}
 M: 4/4
 L: 1/8
-Q: 100
+Q: ${tempo}
 K: Cmaj
 `;
 

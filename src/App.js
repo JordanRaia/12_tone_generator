@@ -28,6 +28,7 @@ function App() {
     ]);
     const [rowNum, setRowNum] = useState(10);
     const [title, setTitle] = useState("Twelve Tone Piece");
+    const [tempo, setTempo] = useState(100);
     const [isShown, setIsShown] = useState(false);
     const [generateError, setGenerateError] = useState("");
     //values used when generate is clicked
@@ -48,6 +49,12 @@ function App() {
 
         setTitle(coolstory.title(100)); //random title under 100 characters
     };
+
+    const setRandomTempo = (e) => {
+        e.preventDefault();
+
+        setTempo(Math.floor(Math.random() * 200) + 60);     //random tempo from 60 to 200
+    }
 
     //sets note type
     const setNewNoteType = (type) => (e) => {
@@ -178,7 +185,8 @@ function App() {
                         generate_matrix(displayRow),
                         noteType,
                         rowNum,
-                        title
+                        title,
+                        tempo
                     )
                 );
             } else {
@@ -187,7 +195,8 @@ function App() {
                         generate_matrix(row.slice()),
                         noteType,
                         rowNum,
-                        title
+                        title,
+                        tempo
                     )
                 );
             }
@@ -281,6 +290,20 @@ function App() {
                                 onChange={(e) => setTitle(e.target.value)}
                             />
                             <button onClick={setRandomTitle}>
+                                <Icon icon="icomoon-free:dice" />
+                            </button>
+                        </div>
+                        <div className="App__flex">
+                            <label htmlFor="Title">Tempo: </label>
+                            <input
+                                type="number"
+                                placeholder="60-200"
+                                value={tempo}
+                                min={60}
+                                max={200}
+                                onChange={(e) => setTempo(e.target.value)}
+                            />
+                            <button onClick={setRandomTempo}>
                                 <Icon icon="icomoon-free:dice" />
                             </button>
                         </div>
