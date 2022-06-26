@@ -314,7 +314,25 @@ V: 1 clef=treble
             beat++;
             measureBeat++;
 
-            notation += scientificToAbcNotation(treble[i]);
+            //note used before
+            if(usedNotes.includes(removeAccidental(treble[i])))
+            {
+                //new note has a # or b
+                if(treble[i].includes("#") || treble[i].includes("b"))
+                {
+                    notation += scientificToAbcNotation(treble[i]);
+                }
+                else    //natural note
+                {
+                    notation += "=" + scientificToAbcNotation(treble[i]);
+                }
+            }
+            else    //note not used before
+            {
+                notation += scientificToAbcNotation(treble[i]);
+                usedNotes.push(removeAccidental(treble[i]));    //add note to used notes array
+            }
+            
 
             if (beat === 2) {
                 //two eighth notes
@@ -326,6 +344,7 @@ V: 1 clef=treble
                 measure++;
                 measureBeat = 0;
                 notation += " |";
+                usedNotes = [];
             }
             if (measure === 3) {
                 //three full measures
@@ -349,6 +368,11 @@ V: 1 clef=treble
                 notation += "]";
             }
         }
+    }
+
+    function removeAccidental(note)
+    {
+        return note.replace("#","").replace("b","");
     }
 
     return notation;
