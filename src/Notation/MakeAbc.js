@@ -81,29 +81,61 @@ function make_abc(matrix, type, rowNum, title) {
                 randomRowType,
                 find_row_location(randomRowType, randomRowNum),
                 startInterval,
-                minimum, maximum
+                minimum,
+                maximum
             );
         }
     }
 
-    function addRow(noteArr, rowType, rowLocation, startInterval, minimum, maximum) {
+    function addRow(
+        noteArr,
+        rowType,
+        rowLocation,
+        startInterval,
+        minimum,
+        maximum
+    ) {
         switch (rowType) {
             case "P":
             case "I":
                 for (let i = 0; i < 12; i++) {
-                    pushNote(noteArr, rowType, rowLocation, i, startInterval, minimum, maximum);
+                    pushNote(
+                        noteArr,
+                        rowType,
+                        rowLocation,
+                        i,
+                        startInterval,
+                        minimum,
+                        maximum
+                    );
                 }
                 break;
             case "R":
             case "RI":
                 for (let i = 11; i >= 0; i--) {
-                    pushNote(noteArr, rowType, rowLocation, i, startInterval, minimum, maximum);
+                    pushNote(
+                        noteArr,
+                        rowType,
+                        rowLocation,
+                        i,
+                        startInterval,
+                        minimum,
+                        maximum
+                    );
                 }
                 break;
         }
     }
 
-    function pushNote(noteArr, rowType, rowLocation, i, startInterval, minimum, maximum) {
+    function pushNote(
+        noteArr,
+        rowType,
+        rowLocation,
+        i,
+        startInterval,
+        minimum,
+        maximum
+    ) {
         switch (noteArr.length) {
             //first note
             case 1:
@@ -132,7 +164,9 @@ function make_abc(matrix, type, rowNum, title) {
                                                 rowType,
                                                 rowLocation,
                                                 i
-                                            ), minimum, maximum
+                                            ),
+                                            minimum,
+                                            maximum
                                         )
                                     )
                                 );
@@ -151,7 +185,9 @@ function make_abc(matrix, type, rowNum, title) {
                                                 rowType,
                                                 rowLocation,
                                                 i
-                                            ), minimum, maximum
+                                            ),
+                                            minimum,
+                                            maximum
                                         )
                                     )
                                 );
@@ -175,7 +211,9 @@ function make_abc(matrix, type, rowNum, title) {
                                                 rowType,
                                                 rowLocation,
                                                 i
-                                            ), minimum, maximum
+                                            ),
+                                            minimum,
+                                            maximum
                                         )
                                     )
                                 );
@@ -194,7 +232,9 @@ function make_abc(matrix, type, rowNum, title) {
                                                 rowType,
                                                 rowLocation,
                                                 i
-                                            ), minimum, maximum
+                                            ),
+                                            minimum,
+                                            maximum
                                         )
                                     )
                                 );
@@ -212,7 +252,14 @@ function make_abc(matrix, type, rowNum, title) {
                                 i,
                                 findLowest(
                                     noteArr[noteArr.length - 1],
-                                    pushMatrix(noteArr, rowType, rowLocation, i), minimum, maximum
+                                    pushMatrix(
+                                        noteArr,
+                                        rowType,
+                                        rowLocation,
+                                        i
+                                    ),
+                                    minimum,
+                                    maximum
                                 )
                             )
                         );
@@ -253,31 +300,33 @@ function make_abc(matrix, type, rowNum, title) {
         var intervalArray = [];
 
         //push all intervals that are not over maximum or under minimum
-        for (let i = 0; i < potentialIntervals.length; i++)
-        {
-            if (potentialIntervals[i] >= minimum && potentialIntervals[i] <= maximum)
-            {
-                intervalArray.push(potentialIntervals[i])
+        for (let i = 0; i < potentialIntervals.length; i++) {
+            if (
+                potentialIntervals[i] >= minimum &&
+                potentialIntervals[i] <= maximum
+            ) {
+                intervalArray.push(potentialIntervals[i]);
             }
         }
 
         var distanceArr = [];
 
         //make array of intervals in abcnotation format
-        for (let i = 0; i < intervalArray.length; i++)
-        {
-            distanceArr.push(Math.abs(
-                parseInt(
-                    distance(
-                        scientificToAbcNotation(Note1),
-                        scientificToAbcNotation(Note2 + intervalArray[i])
-                    ).slice(0, -1)
+        for (let i = 0; i < intervalArray.length; i++) {
+            distanceArr.push(
+                Math.abs(
+                    parseInt(
+                        distance(
+                            scientificToAbcNotation(Note1),
+                            scientificToAbcNotation(Note2 + intervalArray[i])
+                        ).slice(0, -1)
+                    )
                 )
-            ))
+            );
         }
 
-        const min = Math.min(...distanceArr);       //find interval with minimum distance
-        const index = distanceArr.indexOf(min);     //get index of minimum distance interval
+        const min = Math.min(...distanceArr); //find interval with minimum distance
+        const index = distanceArr.indexOf(min); //get index of minimum distance interval
 
         return intervalArray[index];
     }
@@ -285,94 +334,112 @@ function make_abc(matrix, type, rowNum, title) {
     var treble = [];
     var bass = [];
 
-    var notation = `
+    addNotes(treble, 4, 4, 7);
+    addNotes(bass, 3, 1, 4);
+
+    function abcLines(clef) {
+        let beat = 0;
+        let measureBeat = 0;
+        let measure = 0;
+        var usedNotes = [];
+        let tempLine = "";
+        let abcLinesClef = [];
+
+        for (let i = 0; i < clef.length; i++) {
+            //annotation
+            if (clef[i].charAt(0) === `"`) {
+                tempLine += " " + clef[i] + " ";
+            } //note
+            else {
+                beat++;
+                measureBeat++;
+
+                //note used before
+                if (usedNotes.includes(removeAccidental(clef[i]))) {
+                    //new note has a # or b
+                    if (clef[i].includes("#") || clef[i].includes("b")) {
+                        tempLine += scientificToAbcNotation(clef[i]);
+                    } //natural note
+                    else {
+                        tempLine += "=" + scientificToAbcNotation(clef[i]);
+                    }
+                } //note not used before
+                else {
+                    tempLine += scientificToAbcNotation(clef[i]);
+                    usedNotes.push(removeAccidental(clef[i])); //add note to used notes array
+                }
+
+                if (beat === 2) {
+                    //two eighth notes
+                    beat = 0;
+                    tempLine += " ";
+                }
+                if (measureBeat === 8) {
+                    //one full measure
+                    measure++;
+                    measureBeat = 0;
+                    tempLine += " |";
+                    usedNotes = [];
+                }
+                if (measure === 3) {
+                    //three full measures
+                    measure = 0;
+                    if (i !== clef.length - 1) {
+                        abcLinesClef.push(tempLine);
+                        tempLine = "";
+                    }
+                }
+
+                if (i === clef.length - 1) {
+                    //final note
+                    if (measureBeat !== 0) {
+                        let remaning = 8 - measureBeat;
+                        for (let i = 0; i < remaning; i++) {
+                            tempLine += " z ";
+                        }
+                        tempLine += "|";
+                    }
+
+                    tempLine += "]";
+                    abcLinesClef.push(tempLine);
+                    tempLine = "";
+                }
+            }
+        }
+        return abcLinesClef;
+    }
+
+    function removeAccidental(note) {
+        return note.replace("#", "").replace("b", "");
+    }
+
+    function createNotation(trebleLines, bassLines) {
+        var notation = `
 X: 1
 T: ${title}
 M: 4/4
 L: 1/8
 Q: 100
 K: Cmaj
-V: 1 clef=treble
 `;
 
-    addNotes(treble, 4, 4, 7);
-    addNotes(bass, 3, 1, 4);
+        for (let i = 0; i < trebleLines.length; i++)
+        {
+            notation += `V: 1 clef=treble\n`;      //indicate treble clef
+            notation += trebleLines[i] + "\n";     //treble line
 
-    let beat = 0;
-    let measureBeat = 0;
-    let measure = 0;
-    let voice = 0;
-    var usedNotes = [];
-
-    for (let i = 0; i < treble.length; i++) {
-        //annotation
-        if (treble[i].charAt(0) === `"`) {
-            notation += " " + treble[i] + " ";
-        } //note
-        else {
-            beat++;
-            measureBeat++;
-
-            //note used before
-            if(usedNotes.includes(removeAccidental(treble[i])))
-            {
-                //new note has a # or b
-                if(treble[i].includes("#") || treble[i].includes("b"))
-                {
-                    notation += scientificToAbcNotation(treble[i]);
-                }
-                else    //natural note
-                {
-                    notation += "=" + scientificToAbcNotation(treble[i]);
-                }
-            }
-            else    //note not used before
-            {
-                notation += scientificToAbcNotation(treble[i]);
-                usedNotes.push(removeAccidental(treble[i]));    //add note to used notes array
-            }
-            
-
-            if (beat === 2) {
-                //two eighth notes
-                beat = 0;
-                notation += " ";
-            }
-            if (measureBeat === 8) {
-                //one full measure
-                measure++;
-                measureBeat = 0;
-                notation += " |";
-                usedNotes = [];
-            }
-            if (measure === 3) {
-                //three full measures
-                measure = 0;
-                if (i !== treble.length - 1)
-                {
-                    notation += "\n";
-                }
-            }
-
-            if (i === treble.length - 1) {
-                //final note
-                if (measureBeat !== 0) {
-                    let remaning = 8 - measureBeat;
-                    for (let i = 0; i < remaning; i++) {
-                        notation += " z ";
-                    }
-                    notation += "|";
-                }
-
-                notation += "]";
-            }
+            notation += `V: 2 clef=bass\n`;        //indicate bass clef
+            notation += bassLines[i] + "\n";       //bass line
         }
+
+        return notation;
     }
 
-    function removeAccidental(note)
-    {
-        return note.replace("#","").replace("b","");
-    }
+    //write to notation
+    var abcLinesTreble = abcLines(treble);
+    var abcLinesBass = abcLines(bass);
+
+    const notation = createNotation(abcLinesTreble, abcLinesBass);
 
     return notation;
 }
