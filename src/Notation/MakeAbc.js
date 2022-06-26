@@ -71,7 +71,7 @@ function make_abc(matrix, type, rowNum, title) {
 
     var rowType = ["P", "R", "I", "RI"]; //different types of rows on matrix
 
-    function addNotes(noteArr, startInterval) {
+    function addNotes(noteArr, startInterval, minimum, maximum) {
         for (let i = 0; i < rowNum; i++) {
             let randomRowType = rowType[Math.floor(Math.random() * 4)]; //random row Type
             let randomRowNum = Math.floor(Math.random() * 11) + 1; //random row Number
@@ -80,29 +80,30 @@ function make_abc(matrix, type, rowNum, title) {
                 noteArr,
                 randomRowType,
                 find_row_location(randomRowType, randomRowNum),
-                startInterval
+                startInterval,
+                minimum, maximum
             );
         }
     }
 
-    function addRow(noteArr, rowType, rowLocation, startInterval) {
+    function addRow(noteArr, rowType, rowLocation, startInterval, minimum, maximum) {
         switch (rowType) {
             case "P":
             case "I":
                 for (let i = 0; i < 12; i++) {
-                    pushNote(noteArr, rowType, rowLocation, i, startInterval);
+                    pushNote(noteArr, rowType, rowLocation, i, startInterval, minimum, maximum);
                 }
                 break;
             case "R":
             case "RI":
                 for (let i = 11; i >= 0; i--) {
-                    pushNote(noteArr, rowType, rowLocation, i, startInterval);
+                    pushNote(noteArr, rowType, rowLocation, i, startInterval, minimum, maximum);
                 }
                 break;
         }
     }
 
-    function pushNote(noteArr, rowType, rowLocation, i, startInterval) {
+    function pushNote(noteArr, rowType, rowLocation, i, startInterval, minimum, maximum) {
         switch (noteArr.length) {
             //first note
             case 1:
@@ -131,7 +132,7 @@ function make_abc(matrix, type, rowNum, title) {
                                                 rowType,
                                                 rowLocation,
                                                 i
-                                            )
+                                            ), minimum, maximum
                                         )
                                     )
                                 );
@@ -150,7 +151,7 @@ function make_abc(matrix, type, rowNum, title) {
                                                 rowType,
                                                 rowLocation,
                                                 i
-                                            )
+                                            ), minimum, maximum
                                         )
                                     )
                                 );
@@ -174,7 +175,7 @@ function make_abc(matrix, type, rowNum, title) {
                                                 rowType,
                                                 rowLocation,
                                                 i
-                                            )
+                                            ), minimum, maximum
                                         )
                                     )
                                 );
@@ -193,7 +194,7 @@ function make_abc(matrix, type, rowNum, title) {
                                                 rowType,
                                                 rowLocation,
                                                 i
-                                            )
+                                            ), minimum, maximum
                                         )
                                     )
                                 );
@@ -211,7 +212,7 @@ function make_abc(matrix, type, rowNum, title) {
                                 i,
                                 findLowest(
                                     noteArr[noteArr.length - 1],
-                                    pushMatrix(noteArr, rowType, rowLocation, i)
+                                    pushMatrix(noteArr, rowType, rowLocation, i), minimum, maximum
                                 )
                             )
                         );
@@ -240,45 +241,43 @@ function make_abc(matrix, type, rowNum, title) {
 
     //returns the note with the lowest interval from note1 to the note2
     //note1 will have interval number, example: "C4". Note2 will just be a note, example: "G"
-    function findLowest(Note1, Note2) {
-        let intervalNum = parseInt(Note1.slice(-1)); //grabs number at the end and converts to an integer
+    function findLowest(Note1, Note2, minimum, maximum) {
+        const intervalNum = parseInt(Note1.slice(-1)); //grabs number at the end and converts to an integer
 
-        let below = intervalNum - 1; //interval below
-        let same = intervalNum; //same interval
-        let above = intervalNum + 1; //interval above
+        const below = intervalNum - 1; //interval below
+        const same = intervalNum; //same interval
+        const above = intervalNum + 1; //interval above
 
-        const intervalArray = [`${below}`, `${same}`, `${above}`];
+        const potentialIntervals = [below, same, above];
 
-        //array of distances between all 3 potential notes
-        const distanceArr = [
-            Math.abs(
+        var intervalArray = [];
+
+        //push all intervals that are not over maximum or under minimum
+        for (let i = 0; i < potentialIntervals.length; i++)
+        {
+            if (potentialIntervals[i] > minimum && potentialIntervals[i] < maximum)
+            {
+                intervalArray.push(potentialIntervals[i])
+            }
+        }
+
+        var distanceArr = [];
+
+        //make array of intervals in abcnotation format
+        for (let i = 0; i < intervalArray.length; i++)
+        {
+            distanceArr.push(Math.abs(
                 parseInt(
                     distance(
                         scientificToAbcNotation(Note1),
-                        scientificToAbcNotation(Note2 + below)
+                        scientificToAbcNotation(Note2 + intervalArray[i])
                     ).slice(0, -1)
                 )
-            ),
-            Math.abs(
-                parseInt(
-                    distance(
-                        scientificToAbcNotation(Note1),
-                        scientificToAbcNotation(Note2 + same)
-                    ).slice(0, -1)
-                )
-            ),
-            Math.abs(
-                parseInt(
-                    distance(
-                        scientificToAbcNotation(Note1),
-                        scientificToAbcNotation(Note2 + above)
-                    ).slice(0, -1)
-                )
-            ),
-        ];
+            ))
+        }
 
-        const min = Math.min(...distanceArr);
-        const index = distanceArr.indexOf(min);
+        const min = Math.min(...distanceArr);       //find interval with minimum distance
+        const index = distanceArr.indexOf(min);     //get index of minimum distance interval
 
         return intervalArray[index];
     }
@@ -296,8 +295,8 @@ K: Cmaj
 V: 1 clef=treble
 `;
 
-    addNotes(treble, 4);
-    addNotes(bass, 3);
+    addNotes(treble, 4, 4, 7);
+    addNotes(bass, 3, 1, 4);
 
     let beat = 0;
     let measureBeat = 0;

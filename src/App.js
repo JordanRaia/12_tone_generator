@@ -172,9 +172,24 @@ function App() {
             setGenerateError("");
             setDisplayNoteType(noteType);
             setDisplayRow(row.slice());
-            if (displayRow)
-            {
-                setAbcNotes(make_abc(generate_matrix(displayRow), noteType, rowNum, title));
+            if (displayRow) {
+                setAbcNotes(
+                    make_abc(
+                        generate_matrix(displayRow),
+                        noteType,
+                        rowNum,
+                        title
+                    )
+                );
+            } else {
+                setAbcNotes(
+                    make_abc(
+                        generate_matrix(row.slice()),
+                        noteType,
+                        rowNum,
+                        title
+                    )
+                );
             }
             setIsShown(true);
         }
@@ -182,93 +197,109 @@ function App() {
 
     return (
         <div className="App">
-            <h1>Twelve Tone Piece Generator</h1>
-            <h2>Row</h2>
-            <div className="App__row">
-                {row.map((i) => (
-                    <p key={note_types[noteType][i]} className="App__rowElement">{note_types[noteType][i]}</p>
-                ))}
-            </div>
-            <div className="App__noteButtonRow">
-                {noteButtonState.map((value, i) => (
-                    <button key={note_types[noteType][i]} disabled={value} onClick={updateNoteArrays(i)}>
-                        {note_types[noteType][i]}
-                    </button>
-                ))}
-                <button onClick={removeNoteArrays}>
-                    <Icon icon="akar-icons:trash-can" />
-                </button>
-                <button onClick={resetRow}>
-                    <Icon icon="bx:reset" />
-                </button>
-                <button onClick={randomRow}>
-                    <Icon icon="icomoon-free:dice" />
-                </button>
-            </div>
-            <div className="App__noteTypeFlex">
-                <button
-                    onClick={setNewNoteType("flats")}
-                    disabled={isNoteTypeActive("flats")}
-                >
-                    ♭
-                </button>
-                <button
-                    onClick={setNewNoteType("sharps")}
-                    disabled={isNoteTypeActive("sharps")}
-                >
-                    ♯
-                </button>
-                <button
-                    onClick={setNewNoteType("numbers")}
-                    disabled={isNoteTypeActive("numbers")}
-                >
-                    0
-                </button>
-                <button
-                    onClick={setNewNoteType("numberste")}
-                    disabled={isNoteTypeActive("numberste")}
-                >
-                    t
-                </button>
-            </div>
-            <form>
-                <div className="App__flex">
-                    <label htmlFor="RowNum">Number of Rows: </label>
-                    <input
-                        type="number"
-                        placeholder="1-20"
-                        value={rowNum}
-                        min={1}
-                        max={20}
-                        onChange={(e) => setRowNum(e.target.value)}
-                    />
-                    <button onClick={setRandomNumber}>
-                        <Icon icon="icomoon-free:dice" />
-                    </button>
-                </div>
-                <div className="App__flex">
-                    <label htmlFor="Title">Title: </label>
-                    <input
-                        type="text"
-                        value={title}
-                        maxlength={100}
-                        onChange={(e) => setTitle(e.target.value)}
-                    />
-                    <button onClick={setRandomTitle}>
-                        <Icon icon="icomoon-free:dice" />
-                    </button>
-                </div>
-            </form>
-            <button onClick={generate}>Generate</button>
-            <p>{generateError}</p>
-            {isShown && (
-                <div>
-                    <Matrix matrix={generate_matrix(displayRow)} type={displayNoteType} />
-                    <div className="App__notation">
-                        {abcNotes && <Notation notation={abcNotes} />}
+            <div className="App__firsthalf">
+                <div className="App__info">
+                    <h1>Twelve Tone Piece Generator</h1>
+                    <h2>Row</h2>
+                    <div className="App__row">
+                        {row.map((i) => (
+                            <p
+                                key={note_types[noteType][i]}
+                                className="App__rowElement"
+                            >
+                                {note_types[noteType][i]}
+                            </p>
+                        ))}
                     </div>
+                    <div className="App__noteButtonRow">
+                        {noteButtonState.map((value, i) => (
+                            <button
+                                key={note_types[noteType][i]}
+                                disabled={value}
+                                onClick={updateNoteArrays(i)}
+                            >
+                                {note_types[noteType][i]}
+                            </button>
+                        ))}
+                        <button onClick={removeNoteArrays}>
+                            <Icon icon="akar-icons:trash-can" />
+                        </button>
+                        <button onClick={resetRow}>
+                            <Icon icon="bx:reset" />
+                        </button>
+                        <button onClick={randomRow}>
+                            <Icon icon="icomoon-free:dice" />
+                        </button>
+                    </div>
+                    <div className="App__noteTypeFlex">
+                        <button
+                            onClick={setNewNoteType("flats")}
+                            disabled={isNoteTypeActive("flats")}
+                        >
+                            ♭
+                        </button>
+                        <button
+                            onClick={setNewNoteType("sharps")}
+                            disabled={isNoteTypeActive("sharps")}
+                        >
+                            ♯
+                        </button>
+                        <button
+                            onClick={setNewNoteType("numbers")}
+                            disabled={isNoteTypeActive("numbers")}
+                        >
+                            0
+                        </button>
+                        <button
+                            onClick={setNewNoteType("numberste")}
+                            disabled={isNoteTypeActive("numberste")}
+                        >
+                            t
+                        </button>
+                    </div>
+                    <form>
+                        <div className="App__flex">
+                            <label htmlFor="RowNum">Number of Rows: </label>
+                            <input
+                                type="number"
+                                placeholder="1-20"
+                                value={rowNum}
+                                min={1}
+                                max={20}
+                                onChange={(e) => setRowNum(e.target.value)}
+                            />
+                            <button onClick={setRandomNumber}>
+                                <Icon icon="icomoon-free:dice" />
+                            </button>
+                        </div>
+                        <div className="App__flex">
+                            <label htmlFor="Title">Title: </label>
+                            <input
+                                type="text"
+                                value={title}
+                                maxlength={100}
+                                onChange={(e) => setTitle(e.target.value)}
+                            />
+                            <button onClick={setRandomTitle}>
+                                <Icon icon="icomoon-free:dice" />
+                            </button>
+                        </div>
+                    </form>
+                    <button onClick={generate}>Generate</button>
+                    <p>{generateError}</p>
+                    {isShown && (
+                        <Matrix
+                            matrix={generate_matrix(displayRow)}
+                            type={displayNoteType}
+                        />
+                    )}
                 </div>
-            )}
+            </div>
+            <div className="App__otherhalf">
+                {isShown && <div className="App__notation">
+                    {abcNotes && <Notation notation={abcNotes} />}
+                </div>}
+            </div>
         </div>
     );
 }
