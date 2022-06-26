@@ -255,7 +255,7 @@ function make_abc(matrix, type, rowNum, title) {
         //push all intervals that are not over maximum or under minimum
         for (let i = 0; i < potentialIntervals.length; i++)
         {
-            if (potentialIntervals[i] > minimum && potentialIntervals[i] < maximum)
+            if (potentialIntervals[i] >= minimum && potentialIntervals[i] <= maximum)
             {
                 intervalArray.push(potentialIntervals[i])
             }
