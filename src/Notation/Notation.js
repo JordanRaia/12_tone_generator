@@ -18,13 +18,9 @@ function Notation({ notation }) {
     }, []);
 
     if (!loading) {
-        // abcjs.renderAbc("paper", notation);
-
         // resize to page
         var visualOptions = { responsive: "resize" };
-        abcjs.renderAbc("paper", notation, visualOptions);
-
-        var visualObj = abcjs.renderAbc("*", notation, visualOptions);
+        var visualObj = abcjs.renderAbc("paper", notation, visualOptions);
 
         if (abcjs.synth.supportsAudio()) {
             var controlOptions = {
@@ -60,7 +56,9 @@ function Notation({ notation }) {
 
     function downloadMidi() {
         var a = document.getElementById("midi-download");
-        var midi = abcjs.synth.getMidiFile(notation, { midiOutputType: "encoded" });
+        var midi = abcjs.synth.getMidiFile(notation, {
+            midiOutputType: "encoded",
+        });
         a.setAttribute("href", midi);
         a.click();
     }
@@ -69,7 +67,7 @@ function Notation({ notation }) {
         <div>
             <div id="paper"></div>
             <div id="audio"></div>
-            <div class="activate-audio"></div>
+            <div className="activate-audio"></div>
             <button id="midi" onClick={downloadMidi}>
                 Download MIDI
             </button>

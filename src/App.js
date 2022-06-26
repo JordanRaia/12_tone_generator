@@ -53,7 +53,7 @@ function App() {
     const setRandomTempo = (e) => {
         e.preventDefault();
 
-        setTempo(Math.floor(Math.random() * 200) + 60);     //random tempo from 60 to 200
+        setTempo(Math.floor(Math.random() * 141) + 60);     //random tempo from 60 to 200
     }
 
     //sets note type
