@@ -75,7 +75,7 @@ function Notation({ notation }) {
                 id="midi-download"
                 download="example.mid"
                 href="twelve tone midi file"
-            ></a>
+            > </a>
         </div>
     );
 }

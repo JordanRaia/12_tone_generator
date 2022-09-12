@@ -9,322 +9,324 @@ import generate_matrix from "./Matrix/GenerateMatrix";
 import make_abc from "./Notation/MakeAbc";
 
 function App() {
-    const [noteType, setNoteType] = useState("flats");
-    const [row, setRow] = useState([]); //Row array
-    //array of conditionals for each note button, wheather it's been clicked and active
-    const [noteButtonState, setNoteButtonState] = useState([
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
+  const [noteType, setNoteType] = useState("flats");
+  const [row, setRow] = useState([]); //Row array
+  //array of conditionals for each note button, wheather it's been clicked and active
+  const [noteButtonState, setNoteButtonState] = useState([
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+  ]);
+  const [rowNum, setRowNum] = useState(10);
+  const [title, setTitle] = useState("Twelve Tone Piece");
+  const [tempo, setTempo] = useState(100);
+  const [isShown, setIsShown] = useState(false);
+  const [generateError, setGenerateError] = useState("");
+  //values used when generate is clicked
+  const [displayRow, setDisplayRow] = useState();
+  const [displayNoteType, setDisplayNoteType] = useState("flats");
+  const [abcNotes, setAbcNotes] = useState();
+
+  //set rowNum back to 20 if beyond 20
+  if (rowNum > 20) {
+    setRowNum(20);
+  }
+  if (rowNum < 0) {
+    setRowNum(1);
+  }
+
+  if (tempo < 0) {
+    setTempo(1);
+  }
+  if (tempo > 200) {
+    setTempo(200);
+  }
+
+  //set random number
+  const setRandomNumber = (e) => {
+    e.preventDefault();
+
+    setRowNum(Math.floor(Math.random() * 20) + 1); //random number from 1 to 20
+  };
+
+  //set random title
+  const setRandomTitle = (e) => {
+    e.preventDefault();
+
+    setTitle(coolstory.title(100)); //random title under 100 characters
+  };
+
+  const setRandomTempo = (e) => {
+    e.preventDefault();
+
+    setTempo(Math.floor(Math.random() * 141) + 60); //random tempo from 60 to 200
+  };
+
+  //sets note type
+  const setNewNoteType = (type) => (e) => {
+    e.preventDefault(); //prevents page from refreshing
+
+    setNoteType(type);
+  };
+
+  //sets row to random values and fills noteButtonState with true
+  const randomRow = (e) => {
+    e.preventDefault(); //prevent page from refreshing
+
+    var tempRow = [5, 2, 3, 4, 1, 0, 6, 7, 10, 11, 8, 9];
+    shuffleRow(tempRow); //randomly shuffle the row
+    setRow(tempRow);
+
+    setNoteButtonState([
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
     ]);
-    const [rowNum, setRowNum] = useState(10);
-    const [title, setTitle] = useState("Twelve Tone Piece");
-    const [tempo, setTempo] = useState(100);
-    const [isShown, setIsShown] = useState(false);
-    const [generateError, setGenerateError] = useState("");
-    //values used when generate is clicked
-    const [displayRow, setDisplayRow] = useState();
-    const [displayNoteType, setDisplayNoteType] = useState("flats");
-    const [abcNotes, setAbcNotes] = useState();
+  };
 
-    //set random number
-    const setRandomNumber = (e) => {
-        e.preventDefault();
-
-        setRowNum(Math.floor(Math.random() * 20) + 1); //random number from 1 to 20
-    };
-
-    //set random title
-    const setRandomTitle = (e) => {
-        e.preventDefault();
-
-        setTitle(coolstory.title(100)); //random title under 100 characters
-    };
-
-    const setRandomTempo = (e) => {
-        e.preventDefault();
-
-        setTempo(Math.floor(Math.random() * 141) + 60);     //random tempo from 60 to 200
+  //returns wheather the note type is active
+  function isNoteTypeActive(type) {
+    if (type === noteType) {
+      return true;
+    } else {
+      return false;
     }
+  }
 
-    //sets note type
-    const setNewNoteType = (type) => (e) => {
-        e.preventDefault(); //prevents page from refreshing
+  //resets Row to nothing and fills noteButtonState with false
+  const resetRow = (e) => {
+    e.preventDefault(); //prevent page from refreshing
 
-        setNoteType(type);
-    };
+    setRow([]);
+    setNoteButtonState([
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+    ]);
+  };
 
-    //sets row to random values and fills noteButtonState with true
-    const randomRow = (e) => {
-        e.preventDefault(); //prevent page from refreshing
+  //remove last element from row array and update button state array
+  const removeNoteArrays = (e) => {
+    e.preventDefault(); //prevent page from refreshing
 
-        var tempRow = [5, 2, 3, 4, 1, 0, 6, 7, 10, 11, 8, 9];
-        shuffleRow(tempRow); //randomly shuffle the row
-        setRow(tempRow);
+    if (row.length === 0) {
+      //if no row elements exist, return
+      return;
+    } else {
+      updateNoteState(row[row.length - 1], false); //make button clickable again
 
-        setNoteButtonState([
-            true,
-            true,
-            true,
-            true,
-            true,
-            true,
-            true,
-            true,
-            true,
-            true,
-            true,
-            true,
-        ]);
-    };
-
-    //returns wheather the note type is active
-    function isNoteTypeActive(type) {
-        if (type === noteType) {
-            return true;
-        } else {
-            return false;
-        }
+      let tempRow = row.slice(); //make temp row to modify
+      tempRow.pop();
+      setRow(tempRow);
     }
+  };
 
-    //resets Row to nothing and fills noteButtonState with false
-    const resetRow = (e) => {
-        e.preventDefault(); //prevent page from refreshing
+  //updates the button state array and row array
+  const updateNoteArrays = (index) => (e) => {
+    e.preventDefault(); //prevent page refresh
 
-        setRow([]);
-        setNoteButtonState([
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-            false,
-        ]);
-    };
+    setRow([...row, index]); //push new note on to row
 
-    //remove last element from row array and update button state array
-    const removeNoteArrays = (e) => {
-        e.preventDefault(); //prevent page from refreshing
+    updateNoteState(index, true); //set noteButtonState[index] to true
+  };
 
-        if (row.length === 0) {
-            //if no row elements exist, return
-            return;
-        } else {
-            updateNoteState(row[row.length - 1], false); //make button clickable again
+  //change noteButtonState[index] to state
+  function updateNoteState(index, state) {
+    let newArr = [...noteButtonState]; //copy old daya to new array
+    newArr[index] = state; //replace new value in new array
+    setNoteButtonState(newArr); //replace old array with new array
+  }
 
-            let tempRow = row.slice(); //make temp row to modify
-            tempRow.pop();
-            setRow(tempRow);
-        }
-    };
+  //randomly shuffle an array
+  function shuffleRow(array) {
+    let currentIndex = array.length,
+      randomIndex;
 
-    //updates the button state array and row array
-    const updateNoteArrays = (index) => (e) => {
-        e.preventDefault(); //prevent page refresh
+    // While there remain elements to shuffle.
+    while (currentIndex !== 0) {
+      // Pick a remaining element.
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
 
-        setRow([...row, index]); //push new note on to row
-
-        updateNoteState(index, true); //set noteButtonState[index] to true
-    };
-
-    //change noteButtonState[index] to state
-    function updateNoteState(index, state) {
-        let newArr = [...noteButtonState]; //copy old daya to new array
-        newArr[index] = state; //replace new value in new array
-        setNoteButtonState(newArr); //replace old array with new array
+      // And swap it with the current element.
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex],
+        array[currentIndex],
+      ];
     }
+    return array;
+  }
 
-    //randomly shuffle an array
-    function shuffleRow(array) {
-        let currentIndex = array.length,
-            randomIndex;
+  //Generate a matrix and score
+  const generate = (e) => {
+    e.preventDefault(); //prevent refresh
 
-        // While there remain elements to shuffle.
-        while (currentIndex !== 0) {
-            // Pick a remaining element.
-            randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex--;
-
-            // And swap it with the current element.
-            [array[currentIndex], array[randomIndex]] = [
-                array[randomIndex],
-                array[currentIndex],
-            ];
-        }
-        return array;
+    if (row.length < 12) {
+      setGenerateError("Must use all 12 notes!");
+    } else {
+      setGenerateError("");
+      setDisplayNoteType(noteType);
+      setDisplayRow(row.slice());
+      if (displayRow) {
+        setAbcNotes(
+          make_abc(generate_matrix(displayRow), noteType, rowNum, title, tempo)
+        );
+      } else {
+        setAbcNotes(
+          make_abc(generate_matrix(row.slice()), noteType, rowNum, title, tempo)
+        );
+      }
+      setIsShown(true);
     }
+  };
 
-    //Generate a matrix and score
-    const generate = (e) => {
-        e.preventDefault(); //prevent refresh
-
-        if (row.length < 12) {
-            setGenerateError("Must use all 12 notes!");
-        } else {
-            setGenerateError("");
-            setDisplayNoteType(noteType);
-            setDisplayRow(row.slice());
-            if (displayRow) {
-                setAbcNotes(
-                    make_abc(
-                        generate_matrix(displayRow),
-                        noteType,
-                        rowNum,
-                        title,
-                        tempo
-                    )
-                );
-            } else {
-                setAbcNotes(
-                    make_abc(
-                        generate_matrix(row.slice()),
-                        noteType,
-                        rowNum,
-                        title,
-                        tempo
-                    )
-                );
-            }
-            setIsShown(true);
-        }
-    };
-
-    return (
-        <div className="App">
-            <div className="App__firsthalf">
-                <div className="App__info">
-                    <h1>Twelve Tone Piece Generator</h1>
-                    <h2>Row</h2>
-                    <div className="App__row">
-                        {row.map((i) => (
-                            <p
-                                key={note_types[noteType][i]}
-                                className="App__rowElement"
-                            >
-                                {note_types[noteType][i]}
-                            </p>
-                        ))}
-                    </div>
-                    <div className="App__noteButtonRow">
-                        {noteButtonState.map((value, i) => (
-                            <button
-                                key={note_types[noteType][i]}
-                                disabled={value}
-                                onClick={updateNoteArrays(i)}
-                            >
-                                {note_types[noteType][i]}
-                            </button>
-                        ))}
-                        <button onClick={removeNoteArrays}>
-                            <Icon icon="akar-icons:trash-can" />
-                        </button>
-                        <button onClick={resetRow}>
-                            <Icon icon="bx:reset" />
-                        </button>
-                        <button onClick={randomRow}>
-                            <Icon icon="icomoon-free:dice" />
-                        </button>
-                    </div>
-                    <div className="App__noteTypeFlex">
-                        <button
-                            onClick={setNewNoteType("flats")}
-                            disabled={isNoteTypeActive("flats")}
-                        >
-                            ♭
-                        </button>
-                        <button
-                            onClick={setNewNoteType("sharps")}
-                            disabled={isNoteTypeActive("sharps")}
-                        >
-                            ♯
-                        </button>
-                        <button
-                            onClick={setNewNoteType("numbers")}
-                            disabled={isNoteTypeActive("numbers")}
-                        >
-                            0
-                        </button>
-                        <button
-                            onClick={setNewNoteType("numberste")}
-                            disabled={isNoteTypeActive("numberste")}
-                        >
-                            t
-                        </button>
-                    </div>
-                    <form>
-                        <div className="App__flex">
-                            <label htmlFor="RowNum">Number of Rows: </label>
-                            <input
-                                type="number"
-                                placeholder="1-20"
-                                value={rowNum}
-                                min={1}
-                                max={20}
-                                onChange={(e) => setRowNum(e.target.value)}
-                            />
-                            <button onClick={setRandomNumber}>
-                                <Icon icon="icomoon-free:dice" />
-                            </button>
-                        </div>
-                        <div className="App__flex">
-                            <label htmlFor="Title">Title: </label>
-                            <input
-                                type="text"
-                                value={title}
-                                maxlength={100}
-                                onChange={(e) => setTitle(e.target.value)}
-                            />
-                            <button onClick={setRandomTitle}>
-                                <Icon icon="icomoon-free:dice" />
-                            </button>
-                        </div>
-                        <div className="App__flex">
-                            <label htmlFor="Title">Tempo: </label>
-                            <input
-                                type="number"
-                                placeholder="60-200"
-                                value={tempo}
-                                min={60}
-                                max={200}
-                                onChange={(e) => setTempo(e.target.value)}
-                            />
-                            <button onClick={setRandomTempo}>
-                                <Icon icon="icomoon-free:dice" />
-                            </button>
-                        </div>
-                    </form>
-                    <button onClick={generate}>Generate</button>
-                    <p>{generateError}</p>
-                    {isShown && (
-                        <Matrix
-                            matrix={generate_matrix(displayRow)}
-                            type={displayNoteType}
-                        />
-                    )}
-                </div>
+  return (
+    <div className="App">
+      <div className="App__firsthalf">
+        <div className="App__info">
+          <h1>Twelve Tone Piece Generator</h1>
+          <h2>Row</h2>
+          <div className="App__row">
+            {row.map((i) => (
+              <p key={note_types[noteType][i]} className="App__rowElement">
+                {note_types[noteType][i]}
+              </p>
+            ))}
+          </div>
+          <div className="App__noteButtonRow">
+            {noteButtonState.map((value, i) => (
+              <button
+                key={note_types[noteType][i]}
+                disabled={value}
+                onClick={updateNoteArrays(i)}
+              >
+                {note_types[noteType][i]}
+              </button>
+            ))}
+            <button onClick={removeNoteArrays}>
+              <Icon icon="akar-icons:trash-can" />
+            </button>
+            <button onClick={resetRow}>
+              <Icon icon="bx:reset" />
+            </button>
+            <button onClick={randomRow}>
+              <Icon icon="icomoon-free:dice" />
+            </button>
+          </div>
+          <div className="App__noteTypeFlex">
+            <button
+              onClick={setNewNoteType("flats")}
+              disabled={isNoteTypeActive("flats")}
+            >
+              ♭
+            </button>
+            <button
+              onClick={setNewNoteType("sharps")}
+              disabled={isNoteTypeActive("sharps")}
+            >
+              ♯
+            </button>
+            <button
+              onClick={setNewNoteType("numbers")}
+              disabled={isNoteTypeActive("numbers")}
+            >
+              0
+            </button>
+            <button
+              onClick={setNewNoteType("numberste")}
+              disabled={isNoteTypeActive("numberste")}
+            >
+              t
+            </button>
+          </div>
+          <form>
+            <div className="App__flex">
+              <label htmlFor="RowNum">Number of Rows: </label>
+              <input
+                type="number"
+                placeholder="1-20"
+                value={rowNum}
+                min={1}
+                max={20}
+                onChange={(e) => setRowNum(e.target.value)}
+              />
+              <button onClick={setRandomNumber}>
+                <Icon icon="icomoon-free:dice" />
+              </button>
             </div>
-            <div className="App__otherhalf">
-                {isShown && <div className="App__notation">
-                    {abcNotes && <Notation notation={abcNotes} />}
-                </div>}
+            <div className="App__flex">
+              <label htmlFor="Title">Title: </label>
+              <input
+                type="text"
+                value={title}
+                maxlength={100}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+              <button onClick={setRandomTitle}>
+                <Icon icon="icomoon-free:dice" />
+              </button>
             </div>
+            <div className="App__flex">
+              <label htmlFor="Title">Tempo: </label>
+              <input
+                type="number"
+                placeholder="1-200"
+                value={tempo}
+                min={1}
+                max={200}
+                onChange={(e) => setTempo(e.target.value)}
+              />
+              <button onClick={setRandomTempo}>
+                <Icon icon="icomoon-free:dice" />
+              </button>
+            </div>
+          </form>
+          <button onClick={generate}>Generate</button>
+          <p>{generateError}</p>
+          {isShown && (
+            <Matrix
+              matrix={generate_matrix(displayRow)}
+              type={displayNoteType}
+            />
+          )}
         </div>
-    );
+      </div>
+      <div className="App__otherhalf">
+        {isShown && (
+          <div className="App__notation">
+            {abcNotes && <Notation notation={abcNotes} />}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default App;

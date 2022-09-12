@@ -124,6 +124,8 @@ function make_abc(matrix, type, rowNum, title, tempo) {
                     );
                 }
                 break;
+            default:
+                break;
         }
     }
 
@@ -283,6 +285,8 @@ function make_abc(matrix, type, rowNum, title, tempo) {
             //down to up
             case "RI":
                 return notesb[new_type][matrix[i][location]] + interval;
+            default:
+                break;
         }
     }
 
